@@ -8,7 +8,13 @@
  */
 
 import { Plugin, InstallOptions } from '@nocobase/server';
-import { IntentParser, ProposalGenerator, createOpenAIProvider, LLMProvider } from './services';
+import {
+  IntentParser,
+  ProposalGenerator,
+  createOpenAIProvider,
+  LLMProvider,
+  CacheManager,
+} from './services';
 import type { IntentInput, ParsedIntent, ChangeProposal } from '@ALE/core';
 
 /**
@@ -27,6 +33,7 @@ export class ALEIntentEnginePlugin extends Plugin {
   private intentParser!: IntentParser;
   private proposalGenerator!: ProposalGenerator;
   private llmProvider!: LLMProvider;
+  private cacheManager!: CacheManager;
 
   async afterAdd() {
     this.app.logger.info('[@ALE/intent-engine] Plugin added');
@@ -123,11 +130,18 @@ export class ALEIntentEnginePlugin extends Plugin {
    * 初始化服务
    */
   private initializeServices() {
+    // 初始化缓存管理器
+    this.cacheManager = new CacheManager(this.db, {
+      defaultTTL: 3600, // 1 小时
+      useRedis: false, // MVP 使用内存缓存
+    });
+
     // 初始化意图解析器
     this.intentParser = new IntentParser({
       provider: this.llmProvider,
       confidenceThreshold: 0.7,
       enableAutoCorrect: true,
+      cache: this.cacheManager,
     });
 
     // 初始化方案生成器

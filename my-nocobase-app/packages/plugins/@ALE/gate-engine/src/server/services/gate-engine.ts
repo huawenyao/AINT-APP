@@ -14,6 +14,7 @@ import { StructuralGate, StructuralGateConfig } from '../gates/implementations/s
 import { EvidenceGate, EvidenceGateConfig } from '../gates/implementations/evidence-gate';
 import { ExecutionGate, ExecutionGateConfig } from '../gates/implementations/execution-gate';
 import { EvaluationGate, EvaluationGateConfig } from '../gates/implementations/evaluation-gate';
+import { GateCache } from './gate-cache';
 import type { GateResult, GateReport } from '@ALE/core';
 
 /**
@@ -52,6 +53,7 @@ export class GateEngine {
   private gates: Map<string, BaseGate>;
   private config: GateEngineConfig;
   private reportRepo: Repository;
+  private cache: GateCache;
 
   constructor(db: Database, config: GateEngineConfig = {}) {
     this.db = db;
@@ -62,6 +64,7 @@ export class GateEngine {
       defaultTimeout: config.defaultTimeout ?? 5000,
     };
     this.reportRepo = db.getRepository('ale_gate_reports');
+    this.cache = new GateCache(300); // 5 分钟缓存
   }
 
   /**
@@ -106,6 +109,12 @@ export class GateEngine {
     context: GateContext,
     gateNames?: string[],
   ): Promise<GateExecutionResult> {
+    // 检查缓存
+    const cached = this.cache.get(context, gateNames || []);
+    if (cached) {
+      return cached;
+    }
+
     const startTime = Date.now();
     const results: GateResult[] = [];
     let allPassed = true;
@@ -176,13 +185,20 @@ export class GateEngine {
       ? `所有门禁通过 (${passedCount}/${results.length})`
       : `门禁检查失败: ${failedCount} 个未通过`;
 
-    return {
+    const executionResult: GateExecutionResult = {
       passed: allPassed,
       results,
       reportId,
       summary,
       duration,
     };
+
+    // 缓存结果（仅缓存通过的结果）
+    if (allPassed) {
+      this.cache.set(context, gateNames || [], executionResult);
+    }
+
+    return executionResult;
   }
 
   /**

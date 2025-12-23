@@ -31,7 +31,9 @@
     "@ALE/core": "*",
     "zod": "^3.22.0",
     "uuid": "^9.0.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "reactflow": "^11.11.0",
+    "dagre": "^0.8.5"
   },
   "devDependencies": {
     "@types/uuid": "^9.0.0",

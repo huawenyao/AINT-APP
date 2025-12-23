@@ -5,6 +5,7 @@
  */
 
 import { v4 as uuid } from 'uuid';
+import { CacheManager } from './cache-manager';
 import type {
   IntentInput,
   ParsedIntent,
@@ -58,11 +59,13 @@ export class IntentParser {
   private provider: LLMProvider;
   private confidenceThreshold: number;
   private enableAutoCorrect: boolean;
+  private cache?: CacheManager;
 
-  constructor(config: IntentParserConfig) {
+  constructor(config: IntentParserConfig & { cache?: CacheManager }) {
     this.provider = config.provider;
     this.confidenceThreshold = config.confidenceThreshold ?? 0.7;
     this.enableAutoCorrect = config.enableAutoCorrect ?? true;
+    this.cache = config.cache;
   }
 
   /**
@@ -70,6 +73,18 @@ export class IntentParser {
    */
   async parse(input: IntentInput): Promise<IntentParseResult> {
     try {
+      // 检查缓存
+      if (this.cache) {
+        const cached = await this.cache.getCachedIntentParse(input.content);
+        if (cached) {
+          const parsedIntent = this.transformResult(cached as RawParsedIntent, input);
+          return {
+            success: true,
+            intent: parsedIntent,
+          };
+        }
+      }
+
       // 构建解析 prompt
       const prompt = this.buildParsePrompt(input);
       
@@ -78,6 +93,11 @@ export class IntentParser {
         temperature: 0.2,
         maxTokens: 2000,
       });
+
+      // 缓存结果
+      if (this.cache) {
+        await this.cache.cacheIntentParse(input.content, result);
+      }
 
       // 验证和转换结果
       const parsedIntent = this.transformResult(result, input);
