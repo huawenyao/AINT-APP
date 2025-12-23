@@ -3,6 +3,69 @@
     "paths": {
       "@@/*": [
         ".dumi/tmp/*"
+      ],
+      "@ALE/changeset/client": [
+        "packages/plugins/@ALE/changeset/src/client"
+      ],
+      "@ALE/changeset/package.json": [
+        "packages/plugins/@ALE/changeset/package.json"
+      ],
+      "@ALE/changeset": [
+        "packages/plugins/@ALE/changeset/src"
+      ],
+      "@ALE/core/client": [
+        "packages/plugins/@ALE/core/src/client"
+      ],
+      "@ALE/core/package.json": [
+        "packages/plugins/@ALE/core/package.json"
+      ],
+      "@ALE/core": [
+        "packages/plugins/@ALE/core/src"
+      ],
+      "@ALE/dynamic-view/client": [
+        "packages/plugins/@ALE/dynamic-view/src/client"
+      ],
+      "@ALE/dynamic-view/package.json": [
+        "packages/plugins/@ALE/dynamic-view/package.json"
+      ],
+      "@ALE/dynamic-view": [
+        "packages/plugins/@ALE/dynamic-view/src"
+      ],
+      "@ALE/gate-engine/client": [
+        "packages/plugins/@ALE/gate-engine/src/client"
+      ],
+      "@ALE/gate-engine/package.json": [
+        "packages/plugins/@ALE/gate-engine/package.json"
+      ],
+      "@ALE/gate-engine": [
+        "packages/plugins/@ALE/gate-engine/src"
+      ],
+      "@ALE/intent-engine/client": [
+        "packages/plugins/@ALE/intent-engine/src/client"
+      ],
+      "@ALE/intent-engine/package.json": [
+        "packages/plugins/@ALE/intent-engine/package.json"
+      ],
+      "@ALE/intent-engine": [
+        "packages/plugins/@ALE/intent-engine/src"
+      ],
+      "@ALE/ontology/client": [
+        "packages/plugins/@ALE/ontology/src/client"
+      ],
+      "@ALE/ontology/package.json": [
+        "packages/plugins/@ALE/ontology/package.json"
+      ],
+      "@ALE/ontology": [
+        "packages/plugins/@ALE/ontology/src"
+      ],
+      "@ALE/runtime-ui/client": [
+        "packages/plugins/@ALE/runtime-ui/src/client"
+      ],
+      "@ALE/runtime-ui/package.json": [
+        "packages/plugins/@ALE/runtime-ui/package.json"
+      ],
+      "@ALE/runtime-ui": [
+        "packages/plugins/@ALE/runtime-ui/src"
       ]
     }
   }

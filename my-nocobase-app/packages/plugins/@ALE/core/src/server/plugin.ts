@@ -9,8 +9,13 @@
 
 import { Plugin, InstallOptions } from '@nocobase/server';
 import { collections } from './collections';
+import { AuditService } from './services/audit-service';
+import { EvidenceService } from './services/evidence-service';
 
 export class ALECorePlugin extends Plugin {
+  private auditService!: AuditService;
+  private evidenceService!: EvidenceService;
+
   /**
    * 插件加载阶段
    */
@@ -35,6 +40,20 @@ export class ALECorePlugin extends Plugin {
    */
   async load() {
     this.app.logger.info('[@ALE/core] Loading...');
+
+    // 初始化服务
+    this.auditService = new AuditService(this.db, {
+      autoLog: true,
+      defaultRetentionDays: 365,
+    });
+    this.evidenceService = new EvidenceService(this.db, {
+      defaultConfidenceThreshold: 0.8,
+      autoVerify: false,
+    });
+
+    // 注册服务到应用容器
+    this.app.registry.set('ale.auditService', this.auditService);
+    this.app.registry.set('ale.evidenceService', this.evidenceService);
 
     // 注册 ALE 服务容器
     this.app.acl.registerSnippet({
@@ -126,14 +145,97 @@ export class ALECorePlugin extends Plugin {
         },
       },
     });
+
+    // 注册审计日志 API
+    this.app.resourcer.define({
+      name: 'ale_audit',
+      actions: {
+        query: async (ctx, next) => {
+          const filter = ctx.action.params.filter || {};
+          const logs = await this.auditService.query(filter);
+          ctx.body = logs;
+          await next();
+        },
+        getTraceChain: async (ctx, next) => {
+          const { correlationId } = ctx.action.params;
+          const chain = await this.auditService.getTraceChain(correlationId);
+          ctx.body = chain;
+          await next();
+        },
+        getSubjectHistory: async (ctx, next) => {
+          const { subjectType, subjectId, limit } = ctx.action.params;
+          const history = await this.auditService.getSubjectHistory(
+            subjectType,
+            subjectId,
+            limit || 50,
+          );
+          ctx.body = history;
+          await next();
+        },
+      },
+    });
+
+    // 注册证据 API
+    this.app.resourcer.define({
+      name: 'ale_evidence',
+      actions: {
+        collect: async (ctx, next) => {
+          const evidence = ctx.action.params.values;
+          const evidenceId = await this.evidenceService.collect(evidence);
+          ctx.body = { success: true, evidenceId };
+          await next();
+        },
+        verify: async (ctx, next) => {
+          const { id, verified } = ctx.action.params.values;
+          const success = await this.evidenceService.verify(id, verified);
+          ctx.body = { success };
+          await next();
+        },
+        query: async (ctx, next) => {
+          const filter = ctx.action.params.filter || {};
+          const evidences = await this.evidenceService.query(filter);
+          ctx.body = evidences;
+          await next();
+        },
+        validateCompleteness: async (ctx, next) => {
+          const { subjectType, subjectId, requiredTypes } = ctx.action.params.values;
+          const result = await this.evidenceService.validateEvidenceCompleteness(
+            subjectType,
+            subjectId,
+            requiredTypes,
+          );
+          ctx.body = result;
+          await next();
+        },
+      },
+    });
+  }
+
+  /**
+   * 获取审计服务实例
+   */
+  getAuditService(): AuditService {
+    return this.auditService;
+  }
+
+  /**
+   * 获取证据服务实例
+   */
+  getEvidenceService(): EvidenceService {
+    return this.evidenceService;
   }
 
   /**
    * 初始化默认数据
    */
   private async initializeDefaultData() {
-    // 可以在这里初始化一些默认的本体对象、流程等
-    this.app.logger.info('[@ALE/core] Default data initialized');
+    try {
+      // 初始化审计日志索引（如果需要）
+      // 可以在这里初始化一些默认的本体对象、流程等
+      this.app.logger.info('[@ALE/core] Default data initialized');
+    } catch (error) {
+      this.app.logger.warn('[@ALE/core] Failed to initialize default data:', error);
+    }
   }
 }
 

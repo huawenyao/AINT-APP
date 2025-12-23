@@ -29,6 +29,13 @@ export const aleIntents = defineCollection({
       comment: '会话ID，用于关联多轮对话',
     },
     {
+      name: 'status',
+      type: 'string',
+      defaultValue: 'pending',
+      index: true,
+      comment: 'pending | processed | clarification_needed | failed',
+    },
+    {
       name: 'input',
       type: 'json',
       comment: '原始输入（IntentInput）',
@@ -42,12 +49,6 @@ export const aleIntents = defineCollection({
       name: 'confidence',
       type: 'float',
       comment: '置信度',
-    },
-    {
-      name: 'status',
-      type: 'string',
-      defaultValue: 'pending',
-      comment: 'pending | processed | clarification_needed | failed',
     },
     {
       name: 'spaceId',
@@ -123,6 +124,7 @@ export const aleProposals = defineCollection({
       name: 'status',
       type: 'string',
       defaultValue: 'draft',
+      index: true,
       comment: 'draft | confirmed | discarded',
     },
     {
@@ -257,6 +259,7 @@ export const aleOntologyObjects = defineCollection({
       name: 'status',
       type: 'string',
       defaultValue: 'active',
+      index: true,
       comment: 'active | deprecated | draft',
     },
     {
@@ -615,6 +618,7 @@ export const aleChangeSets = defineCollection({
       name: 'status',
       type: 'string',
       defaultValue: 'draft',
+      index: true,
       comment: 'draft | pending | approved | rejected | published | rolled_back',
     },
     {
@@ -713,6 +717,7 @@ export const aleGateReports = defineCollection({
     {
       name: 'passed',
       type: 'boolean',
+      index: true,
     },
     {
       name: 'summary',
