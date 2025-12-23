@@ -142,6 +142,14 @@ export class ALEGateEnginePlugin extends Plugin {
           }
 
           const result = await this.gateEngine.execute(context, gates);
+          // 转换为 API 格式
+          ctx.body = {
+            passed: result.passed,
+            summary: result.summary,
+            duration: result.duration,
+            reportId: result.reportId,
+            gates: result.results,
+          };
           ctx.body = result;
           await next();
         },
@@ -162,7 +170,12 @@ export class ALEGateEnginePlugin extends Plugin {
 
           const types = gateTypes || [GateType.G1_STRUCTURAL, GateType.G3_EVIDENCE];
           const result = await this.gateEngine.preCheck(context, types);
-          ctx.body = result;
+          ctx.body = {
+            passed: result.passed,
+            summary: result.summary,
+            duration: result.duration,
+            gates: result.results,
+          };
           await next();
         },
 
