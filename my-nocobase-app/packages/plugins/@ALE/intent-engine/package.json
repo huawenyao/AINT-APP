@@ -1,0 +1,43 @@
+{
+  "name": "@ALE/intent-engine",
+  "version": "0.1.0",
+  "description": "ALE Intent Engine - 意图理解引擎（构建态核心）",
+  "license": "MIT",
+  "main": "./dist/server/index.js",
+  "types": "./dist/server/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/server/index.js",
+      "import": "./dist/server/index.js",
+      "types": "./dist/server/index.d.ts"
+    },
+    "./client": {
+      "require": "./dist/client/index.js",
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist",
+    "test": "vitest"
+  },
+  "peerDependencies": {
+    "@nocobase/server": "1.8.x",
+    "@nocobase/database": "1.8.x"
+  },
+  "dependencies": {
+    "@ALE/core": "workspace:*",
+    "openai": "^4.28.0",
+    "zod": "^3.22.0",
+    "uuid": "^9.0.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.0",
+    "@types/lodash": "^4.14.202",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0",
+    "rimraf": "^5.0.0"
+  }
+}
