@@ -10,10 +10,63 @@
 
 ### 1.1 架构目标
 
-构建**控制面与执行面分离**的企业级 ALE 平台，实现：
+构建**双态分离 + 控制面/执行面分离**的企业级 ALE 平台，实现：
+- **构建态 AI 原生**：意图理解 + 响应式动态视图，彻底重构 NocoBase 交互模式
+- **运行态本体驱动**：确定性执行 + 门禁保障
 - **语义可控**：本体驱动的业务逻辑控制
 - **执行可信**：门禁保障的可审计执行
 - **扩展可持续**：插件化的能力演进
+
+### 1.2 核心架构范式：双态分离
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          双态架构核心                                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │                    构建态 (Design Time)                          │   │
+│  │                    「AI 原生交互层」                              │   │
+│  │                                                                  │   │
+│  │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐     │   │
+│  │  │  意图理解引擎   │  │ 响应式视图引擎  │  │ ChangeSet生成器│     │   │
+│  │  │  Intent Engine │  │ Dynamic View   │  │  CS Generator  │     │   │
+│  │  └───────┬────────┘  └───────┬────────┘  └───────┬────────┘     │   │
+│  │          │                   │                   │               │   │
+│  │          └───────────────────┼───────────────────┘               │   │
+│  │                              ▼                                    │   │
+│  │                    ┌────────────────┐                            │   │
+│  │                    │   ChangeSet    │                            │   │
+│  │                    │   (待发布变更)  │                            │   │
+│  │                    └────────┬───────┘                            │   │
+│  └─────────────────────────────┼────────────────────────────────────┘   │
+│                                │ 发布（经门禁审批）                      │
+│                                ▼                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │                    运行态 (Runtime)                              │   │
+│  │                    「本体驱动执行层」                             │   │
+│  │                                                                  │   │
+│  │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐     │   │
+│  │  │  本体注册表    │  │   门禁引擎     │  │  动作执行器    │     │   │
+│  │  │  Ontology Reg  │  │  Gate Engine   │  │ Action Executor│     │   │
+│  │  └────────────────┘  └────────────────┘  └────────────────┘     │   │
+│  │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐     │   │
+│  │  │  UI 生成器     │  │  事件总线     │  │  证据存储      │     │   │
+│  │  │  UI Generator  │  │  Event Bus    │  │ Evidence Store │     │   │
+│  │  └────────────────┘  └────────────────┘  └────────────────┘     │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**关键区分**：
+| 维度 | 构建态 | 运行态 |
+|-----|-------|-------|
+| **交互模式** | 自然语言 + 动态视图 | 结构化 API + 生成式 UI |
+| **核心引擎** | 意图理解引擎 (LLM) | 门禁引擎 (规则) |
+| **输出产物** | ChangeSet | Event + Evidence |
+| **性能要求** | 可接受延迟 | 低延迟必须 |
+| **确定性** | 探索性、迭代性 | 确定性、可重放 |
 
 ### 1.2 架构全景
 
@@ -63,6 +116,72 @@
 ## 第二章：核心技术原则
 
 ### 2.1 架构原则
+
+#### 原则 0：构建态与运行态分离（最高优先级）
+
+```typescript
+// ✅ 构建态：AI 原生交互
+class DesignTimeStudio {
+  private intentEngine: IntentUnderstandingEngine;
+  private dynamicViewEngine: DynamicViewEngine;
+  private changeSetGenerator: ChangeSetGenerator;
+
+  // 用户自然语言输入
+  async handleUserIntent(input: string, context: DesignContext): Promise<DesignResponse> {
+    // 1. 意图理解
+    const intent = await this.intentEngine.parse(input, context);
+    
+    // 2. 生成变更方案
+    const proposal = await this.intentEngine.generateProposal(intent);
+    
+    // 3. 更新动态视图（响应式）
+    const view = await this.dynamicViewEngine.update(proposal);
+    
+    // 4. 返回预览（用户可继续迭代）
+    return { intent, proposal, view };
+  }
+
+  // 用户确认后生成 ChangeSet
+  async confirmAndGenerateChangeSet(proposal: ChangeProposal): Promise<ChangeSet> {
+    return this.changeSetGenerator.fromProposal(proposal);
+  }
+}
+
+// ✅ 运行态：本体驱动执行
+class RuntimeExecutor {
+  private ontologyRegistry: OntologyRegistry;
+  private gateEngine: GateEngine;
+  private actionExecutor: ActionExecutor;
+
+  // 结构化 API 调用
+  async execute(action: string, params: any, context: RuntimeContext): Promise<ActionResult> {
+    // 1. 从本体获取动作定义
+    const actionDef = await this.ontologyRegistry.getAction(action);
+    
+    // 2. 门禁检查
+    const gateResult = await this.gateEngine.evaluate(params, actionDef.gates);
+    if (!gateResult.passed) {
+      throw new GateBlockedError(gateResult);
+    }
+    
+    // 3. 执行动作
+    const result = await this.actionExecutor.execute(actionDef, params);
+    
+    // 4. 记录证据
+    await this.recordEvidence(action, params, result);
+    
+    return result;
+  }
+}
+
+// ❌ 禁止：运行态直接修改本体
+class RuntimeExecutor {
+  async modifyOntology(changes: any) {
+    // 这是错误的！运行态不能直接修改本体
+    await this.ontologyRegistry.update(changes); // 禁止！
+  }
+}
+```
 
 #### 原则 1：控制面与执行面分离
 
