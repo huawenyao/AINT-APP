@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALE 使用指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav a {
+            color: #667eea;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav a:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .scenario-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .scenario-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .scenario-card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .scenario-card h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge-design {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-runtime {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .badge-mvp {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .code-block code {
+            color: #abb2bf;
+        }
+
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .api-endpoint {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+
+        .api-endpoint.method-get { border-left: 4px solid #4caf50; }
+        .api-endpoint.method-post { border-left: 4px solid #2196f3; }
+        .api-endpoint.method-put { border-left: 4px solid #ff9800; }
+        .api-endpoint.method-delete { border-left: 4px solid #f44336; }
+
+        .tip {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav ul {
+                flex-direction: column;
+            }
+
+            .scenario-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 ALE 使用指南</h1>
+            <p>AI 原生的低代码工程平台 - 完整使用说明</p>
+        </header>
+
+        <nav class="nav">
+            <ul>
+                <li><a href="#overview">概览</a></li>
+                <li><a href="#scenario-1">场景1: 创建数据模型</a></li>
+                <li><a href="#scenario-2">场景2: 处置单管理</a></li>
+                <li><a href="#scenario-3">场景3: 门禁检查</a></li>
+                <li><a href="#scenario-4">场景4: 变更管理</a></li>
+                <li><a href="#api-reference">API 参考</a></li>
+            </ul>
+        </nav>
+
+        <!-- 概览 -->
+        <section id="overview" class="scenario-card">
+            <h2>📖 平台概览</h2>
+            <p>ALE (Agentic Low-code Engineering) 是一个 AI 原生的低代码工程平台，提供双态架构：</p>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>构建态 (Design Time)</strong>: 通过自然语言表达意图，AI 自动理解并生成变更方案
+            </div>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>运行态 (Runtime)</strong>: 本体驱动的自动执行，门禁保障安全，审计全程追溯
+            </div>
+
+            <h3>核心功能</h3>
+            <ul>
+                <li>✅ 自然语言意图理解</li>
+                <li>✅ AI 自动生成数据模型</li>
+                <li>✅ 动态视图预览</li>
+                <li>✅ 门禁安全检查</li>
+                <li>✅ 变更集管理</li>
+                <li>✅ 审计日志追溯</li>
+            </ul>
+        </section>
+
+        <!-- 场景1: 创建数据模型 -->
+        <section id="scenario-1" class="scenario-card">
+            <h2>场景 1: 通过自然语言创建数据模型 <span class="badge badge-design">构建态</span></h2>
+            
+            <p>使用自然语言描述需求，AI 自动理解并生成数据模型定义。</p>
+
+            <h3>步骤 1: 解析意图</h3>
+            <div class="step">
+                <span class="step-number">1</span>
+                发送自然语言请求到意图解析 API
+            </div>
+
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/ale_intent:parse
+            </div>
+
+            <div class="code-block">
+<code>{
+  "input": {
+    "type": "text",
+    "content": "创建一个延迟订单处置单，包含订单号、延迟天数、风险等级、处置状态、客户名称、订单金额等字段"
+  }
+}</code>
+            </div>
+
+            <div class="success">
+                <strong>✅ 响应示例:</strong>
+                <pre>{
+  "success": true,
+  "intent": {
+    "id": "intent-xxx",
+    "category": "create",
+    "subjects": [{
+      "type": "object",
+      "name": "disposal_orders",
+      "properties": {...}
+    }],
+    "confidence": 0.95
+  }
+}</pre>
+            </div>
+
+            <h3>步骤 2: 生成方案</h3>
+            <div class="step">
+                <span class="step-number">2</span>
+                基于解析的意图生成变更方案
+            </div>
+
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/ale_intent:generateProposal
+            </div>
+
+            <div class="code-block">
+<code>{
+  "intentId": "intent-xxx"
+}</code>
+            </div>
+
+            <div class="tip">
+                <strong>💡 提示:</strong> 方案包含对象定义、字段、关系、状态机等完整信息，可在前端预览。
+            </div>
+
+            <h3>步骤 3: 确认并创建变更集</h3>
+            <div class="step">
+                <span class="step-number">3</span>
+                确认方案后创建变更集
+            </div>
+
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/ale_changeset:createFromProposal
+            </div>
+
+            <div class="code-block">
+<code>{
+  "proposalId": "proposal-xxx",
+  "createdBy": 1
+}</code>
+            </div>
+
+            <h3>步骤 4: 提交和发布</h3>
+            <div class="step">
+                <span class="step-number">4</span>
+                提交变更集 → 审批 → 发布
+            </div>
+
+            <div class="code-block">
+<code># 提交
+POST /api/ale_changeset:submit
+{ "id": "changeset-xxx" }
+
+# 审批
+POST /api/ale_changeset:approve
+{ "id": "changeset-xxx", "approvedBy": 1 }
+
+# 发布
+POST /api/ale_changeset:publish
+{ "id": "changeset-xxx" }</code>
+            </div>
+
+            <div class="success">
+                <strong>✅ 完成!</strong> 数据模型已创建并同步到运行态，可以开始使用。
+            </div>
+        </section>
+
+        <!-- 场景2: 处置单管理 -->
+        <section id="scenario-2" class="scenario-card">
+            <h2>场景 2: 延迟订单处置单管理 <span class="badge badge-mvp">MVP 场景</span></h2>
+            
+            <p>完整的处置单生命周期管理，包括创建、分配、提交方案、审批、执行等步骤。</p>
+
+            <h3>状态机流程</h3>
+            <div class="code-block">
+<code>pending → assigned → proposal_submitted → approved → executing → resolved
+         ↓              ↓                    ↓
+      failed      escalated            cancelled</code>
+            </div>
+
+            <h3>步骤 1: 创建处置单</h3>
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/disposal_orders:create
+            </div>
+
+            <div class="code-block">
+<code>{
+  "orderNo": "DO-001",
+  "sourceOrderId": "ORD-12345",
+  "customerName": "客户A",
+  "delayDays": 5,
+  "orderAmount": 10000.00,
+  "riskLevel": "low",
+  "status": "pending"
+}</code>
+            </div>
+
+            <h3>步骤 2: 分配处置单</h3>
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/disposal_orders:assign
+            </div>
+
+            <div class="code-block">
+<code># URL: /api/disposal_orders:assign?filterByTk=DO-001
+{
+  "assigneeId": 1
+}</code>
+            </div>
+
+            <div class="tip">
+                <strong>💡 提示:</strong> 分配操作会自动触发 G6_EXECUTION 门禁检查（权限验证）。
+            </div>
+
+            <h3>步骤 3: 提交处置方案</h3>
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/disposal_orders:submitProposal
+            </div>
+
+            <div class="code-block">
+<code># URL: /api/disposal_orders:submitProposal?filterByTk=DO-001
+{
+  "proposedAction": "联系客户协商延期",
+  "evidence": [{
+    "type": "risk_assessment",
+    "content": {
+      "riskLevel": "low",
+      "customerCredit": "good"
+    },
+    "confidence": 0.9
+  }]
+}</code>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ 注意:</strong> 提交方案需要满足以下门禁：
+                <ul>
+                    <li>G1_STRUCTURAL: 方案结构验证</li>
+                    <li>G3_EVIDENCE: 证据完整性验证</li>
+                </ul>
+            </div>
+
+            <h3>步骤 4: 审批方案</h3>
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/disposal_orders:approve
+            </div>
+
+            <div class="code-block">
+<code># URL: /api/disposal_orders:approve?filterByTk=DO-001
+{
+  "approvedBy": 2,
+  "comment": "方案合理，同意执行"
+}</code>
+            </div>
+
+            <h3>步骤 5: 执行处置</h3>
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/disposal_orders:execute
+            </div>
+
+            <div class="code-block">
+<code># URL: /api/disposal_orders:execute?filterByTk=DO-001
+{
+  "executionResult": "已联系客户，同意延期7天",
+  "evidence": [{
+    "type": "execution_record",
+    "content": {
+      "contactDate": "2024-12-01",
+      "agreedDelayDays": 7
+    }
+  }]
+}</code>
+            </div>
+
+            <h3>查询处置单</h3>
+            <div class="api-endpoint method-get">
+                <strong>GET</strong> /api/disposal_orders:list
+            </div>
+
+            <div class="code-block">
+<code># 查询参数
+?filter[status]=pending
+&filter[assigneeId]=1
+&sort=-createdAt
+&page=1
+&pageSize=20</code>
+            </div>
+        </section>
+
+        <!-- 场景3: 门禁检查 -->
+        <section id="scenario-3" class="scenario-card">
+            <h2>场景 3: 门禁检查机制 <span class="badge badge-runtime">运行态</span></h2>
+            
+            <p>ALE 提供 4 种门禁类型，自动检查操作的安全性和合规性。</p>
+
+            <h3>门禁类型</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>门禁</th>
+                        <th>名称</th>
+                        <th>检查内容</th>
+                        <th>应用场景</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>G1</strong></td>
+                        <td>STRUCTURAL</td>
+                        <td>Schema 验证、类型检查、必填字段</td>
+                        <td>数据创建/更新</td>
+                    </tr>
+                    <tr>
+                        <td><strong>G3</strong></td>
+                        <td>EVIDENCE</td>
+                        <td>证据存在性、置信度、完整性</td>
+                        <td>方案提交、执行确认</td>
+                    </tr>
+                    <tr>
+                        <td><strong>G6</strong></td>
+                        <td>EXECUTION</td>
+                        <td>权限、状态、前置条件</td>
+                        <td>操作执行前</td>
+                    </tr>
+                    <tr>
+                        <td><strong>G7</strong></td>
+                        <td>EVALUATION</td>
+                        <td>目标达成、副作用、质量指标</td>
+                        <td>操作执行后</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>手动执行门禁检查</h3>
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/ale_gate:execute
+            </div>
+
+            <div class="code-block">
+<code>{
+  "context": {
+    "action": "create",
+    "subjectType": "disposal_orders",
+    "data": {
+      "orderNo": "DO-001",
+      "delayDays": 5
+    },
+    "actorId": 1
+  },
+  "gates": ["G1_STRUCTURAL", "G3_EVIDENCE"]
+}</code>
+            </div>
+
+            <div class="success">
+                <strong>✅ 响应示例:</strong>
+                <pre>{
+  "passed": true,
+  "summary": "所有门禁通过 (2/2)",
+  "duration": 45,
+  "reportId": "report-xxx",
+  "gates": [
+    {
+      "gate": "G1_STRUCTURAL",
+      "passed": true,
+      "message": "结构验证通过"
+    },
+    {
+      "gate": "G3_EVIDENCE",
+      "passed": true,
+      "message": "证据验证通过"
+    }
+  ]
+}</pre>
+            </div>
+
+            <h3>门禁预检</h3>
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/ale_gate:preCheck
+            </div>
+
+            <div class="code-block">
+<code>{
+  "context": {
+    "action": "create",
+    "subjectType": "disposal_orders"
+  },
+  "types": ["G1_STRUCTURAL", "G3_EVIDENCE"]
+}</code>
+            </div>
+
+            <div class="tip">
+                <strong>💡 提示:</strong> 预检不会保存报告，仅用于快速检查。实际执行时会自动触发门禁检查。
+            </div>
+        </section>
+
+        <!-- 场景4: 变更管理 -->
+        <section id="scenario-4" class="scenario-card">
+            <h2>场景 4: 变更集管理 <span class="badge badge-design">构建态</span></h2>
+            
+            <p>管理从方案到发布的完整变更生命周期。</p>
+
+            <h3>变更集状态</h3>
+            <div class="code-block">
+<code>draft → pending → approved → published
+              ↓
+          rejected</code>
+            </div>
+
+            <h3>创建变更集</h3>
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/ale_changeset:create
+            </div>
+
+            <div class="code-block">
+<code>{
+  "title": "添加处置单模块",
+  "description": "新增延迟订单处置单功能",
+  "changes": {
+    "objects": [...],
+    "relations": [...],
+    "flows": [...]
+  },
+  "createdBy": 1
+}</code>
+            </div>
+
+            <h3>查询变更集</h3>
+            <div class="api-endpoint method-get">
+                <strong>GET</strong> /api/ale_changeset:list
+            </div>
+
+            <div class="code-block">
+<code># 查询参数
+?filter[status]=pending
+&sort=-createdAt
+&page=1
+&pageSize=20</code>
+            </div>
+
+            <h3>版本历史</h3>
+            <div class="api-endpoint method-get">
+                <strong>GET</strong> /api/ale_changeset:getVersionHistory
+            </div>
+
+            <div class="code-block">
+<code># 查询参数
+?limit=10</code>
+            </div>
+
+            <h3>回滚变更</h3>
+            <div class="api-endpoint method-post">
+                <strong>POST</strong> /api/ale_changeset:rollback
+            </div>
+
+            <div class="code-block">
+<code>{
+  "id": "changeset-xxx",
+  "reason": "发现严重问题，需要回滚"
+}</code>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ 警告:</strong> 回滚操作会撤销所有变更，请谨慎操作。
+            </div>
+        </section>
+
+        <!-- API 参考 -->
+        <section id="api-reference" class="scenario-card">
+            <h2>📚 API 参考</h2>
+            
+            <h3>意图引擎 API</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>方法</th>
+                        <th>端点</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>POST</td>
+                        <td>/api/ale_intent:parse</td>
+                        <td>解析自然语言意图</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/api/ale_intent:generateProposal</td>
+                        <td>生成变更方案</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/api/ale_intent:confirmProposal</td>
+                        <td>确认方案</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>门禁引擎 API</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>方法</th>
+                        <th>端点</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>POST</td>
+                        <td>/api/ale_gate:execute</td>
+                        <td>执行门禁检查</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/api/ale_gate:preCheck</td>
+                        <td>门禁预检</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/api/ale_gate_reports:list</td>
+                        <td>查询门禁报告</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>变更集 API</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>方法</th>
+                        <th>端点</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>POST</td>
+                        <td>/api/ale_changeset:create</td>
+                        <td>创建变更集</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/api/ale_changeset:submit</td>
+                        <td>提交变更集</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/api/ale_changeset:approve</td>
+                        <td>审批变更集</td>
+                    </tr>
+                    <tr>
+                        <td>POST</td>
+                        <td>/api/ale_changeset:publish</td>
+                        <td>发布变更集</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>审计 API</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>方法</th>
+                        <th>端点</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>GET</td>
+                        <td>/api/ale_audit:query</td>
+                        <td>查询审计日志</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/api/ale_audit:getTraceChain</td>
+                        <td>获取追踪链</td>
+                    </tr>
+                    <tr>
+                        <td>GET</td>
+                        <td>/api/ale_audit:getSubjectHistory</td>
+                        <td>获取对象操作历史</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="footer">
+            <p>© 2024 ALE Platform | <a href="../README.md">返回文档首页</a></p>
+        </div>
+    </div>
+
+    <script>
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 代码块复制功能
+        document.querySelectorAll('.code-block').forEach(block => {
+            block.style.position = 'relative';
+            const button = document.createElement('button');
+            button.textContent = '复制';
+            button.style.cssText = 'position:absolute;top:5px;right:5px;padding:5px 10px;background:#667eea;color:white;border:none;border-radius:3px;cursor:pointer;';
+            button.onclick = () => {
+                const text = block.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = '已复制!';
+                    setTimeout(() => button.textContent = '复制', 2000);
+                });
+            };
+            block.appendChild(button);
+        });
+    </script>
+</body>
+</html>

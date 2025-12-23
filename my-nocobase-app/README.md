@@ -143,6 +143,16 @@ curl -X POST http://localhost:13000/api/disposal_orders:assign \
 
 ## 📚 文档
 
+### 🎯 快速开始
+- **[使用指南](./docs/USAGE_GUIDE.html)** - 可视化使用说明页面 ⭐
+- [开发指南](./docs/DEVELOPMENT_GUIDE.md) - 开发环境搭建
+- [部署指南](./docs/DEPLOYMENT_GUIDE.md) - 生产环境部署
+
+### 🔧 运维文档
+- [维护指南](./docs/MAINTENANCE_GUIDE.md) - 日常维护和监控
+- [故障排查](./docs/TROUBLESHOOTING.md) - 常见问题解决
+
+### 📖 架构文档
 - [实施路线图](./ALE_IMPLEMENTATION_ROADMAP.md)
 - [数据模型设计](./ALE_DATA_MODEL_DESIGN.md)
 - [双态架构设计](./ALE_DUAL_MODE_ARCHITECTURE.md)
@@ -158,6 +168,25 @@ yarn test
 
 # 运行端到端测试
 yarn e2e tests/e2e/disposal-order.spec.ts
+```
+
+## 🛠️ 工具脚本
+
+```bash
+# 开发环境快速设置
+./scripts/dev-setup.sh
+
+# 健康检查
+./scripts/health-check.sh
+
+# 监控报告
+./scripts/monitor.sh
+
+# 完整备份
+./scripts/backup-all.sh
+
+# 发布准备
+./scripts/prepare-release.sh
 ```
 
 ## 📝 开发指南
