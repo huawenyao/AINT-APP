@@ -132,8 +132,13 @@ export class ALECorePlugin extends Plugin {
    * 初始化默认数据
    */
   private async initializeDefaultData() {
-    // 可以在这里初始化一些默认的本体对象、流程等
-    this.app.logger.info('[@ALE/core] Default data initialized');
+    try {
+      // 初始化审计日志索引（如果需要）
+      // 可以在这里初始化一些默认的本体对象、流程等
+      this.app.logger.info('[@ALE/core] Default data initialized');
+    } catch (error) {
+      this.app.logger.warn('[@ALE/core] Failed to initialize default data:', error);
+    }
   }
 }
 

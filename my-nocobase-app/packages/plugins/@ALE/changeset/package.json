@@ -27,9 +27,9 @@
     "@nocobase/database": "1.8.x"
   },
   "dependencies": {
-    "@ALE/core": "workspace:*",
-    "@ALE/gate-engine": "workspace:*",
-    "@ALE/ontology": "workspace:*",
+    "@ALE/core": "*",
+    "@ALE/gate-engine": "*",
+    "@ALE/ontology": "*",
     "zod": "^3.22.0",
     "uuid": "^9.0.0",
     "lodash": "^4.17.21",

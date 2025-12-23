@@ -27,7 +27,7 @@
     "@nocobase/database": "1.8.x"
   },
   "dependencies": {
-    "@ALE/core": "workspace:*",
+    "@ALE/core": "*",
     "openai": "^4.28.0",
     "zod": "^3.22.0",
     "uuid": "^9.0.0",
