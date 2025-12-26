@@ -8,9 +8,12 @@
 -- 配置参数
 -- ============================================================================
 
--- Databricks SQL标准变量声明方式
-DECLARE days_to_process INT DEFAULT 7;
-DECLARE processing_date DATE DEFAULT current_date();
+-- 方式1: 在Databricks Notebook中，使用Widget参数:
+-- dbutils.widgets.text("days_to_process", "7")
+-- dbutils.widgets.text("processing_date", "")
+
+-- 方式2: 直接在SQL中设置变量（当前使用此方式）
+-- 可以通过修改下面的值来调整处理范围
 
 
 -- ============================================================================
@@ -37,7 +40,7 @@ SELECT
   org_1 as org,
   DATE(start_at) as date_partition
 FROM bdec.prod.bp_ito_itom__ai_logs
-WHERE start_at >= date_sub(current_timestamp(), days_to_process)
+WHERE start_at >= date_sub(current_timestamp(), 7)  -- 处理最近7天数据
   AND (cc_user_email IS NOT NULL OR user_email IS NOT NULL)
   AND concat_text_not_text IS NOT NULL;
 
@@ -58,7 +61,7 @@ SELECT
   team_id as org,
   DATE(start_time) as date_partition
 FROM bdec.prod.stg_ito__llm_api_log
-WHERE start_time >= date_sub(current_timestamp(), days_to_process)
+WHERE start_time >= date_sub(current_timestamp(), 7)  -- 处理最近7天数据
   AND user_email IS NOT NULL
   AND extract_content IS NOT NULL
   AND extract_content != '';
@@ -322,7 +325,7 @@ SELECT
   DATE(MIN(timestamp)) as date_partition,
   FIRST(platform) as platform_partition  -- 分区列副本
 FROM unity_plat.atit_rd_dev.extracted_ai_conversation
-WHERE date_partition >= date_sub(current_date(), days_to_process)
+WHERE date_partition >= date_sub(current_date(), 7)  -- 处理最近7天数据
 GROUP BY source_table, session_id, platform, user_email;
 
 
@@ -413,7 +416,7 @@ SELECT
   AVG(user_inputs) as avg_inputs_per_session,
   AVG(session_tokens) as avg_tokens_per_session
 FROM unity_plat.atit_rd_dev.extracted_ai_user_sessions
-WHERE date_partition >= date_sub(current_date(), days_to_process);
+WHERE date_partition >= date_sub(current_date(), 7);  -- 处理最近7天数据
 
 
 -- ============================================================================
